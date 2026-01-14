@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Cost Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 50px 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="%23ffffff" fill-opacity="0.05" d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Prediction Card */
+        .prediction-card {
+            background: white;
+            border-radius: 0 0 20px 20px;
+            padding: 40px 45px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .card-header h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 1em;
+        }
+
+        /* Form Styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group label::before {
+            content: '•';
+            color: #667eea;
+            font-size: 1.3em;
+        }
+
+        input[type="number"],
+        select {
+            padding: 13px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-predict {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        /* Result Section */
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 35px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            margin-top: 25px;
+            box-shadow: 0 8px 35px rgba(245, 87, 108, 0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card h3 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .result-subtitle {
+            font-size: 1em;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .info-card-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 35px 25px;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .hero h1 {
+                font-size: 1.8em;
+            }
+
+            .prediction-card {
+                padding: 25px 20px;
+                border-radius: 0 0 15px 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header h2 {
+                font-size: 1.6em;
+            }
+
+            .result-value {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Healthcare Cost Prediction</h1>
+            <p>Estimate medical expenses with AI-powered predictions</p>
+        </div>
+
+        <!-- Prediction Card -->
+        <div class="prediction-card">
+            <div class="card-header">
+                <h2>💊 Healthcare Cost Predictor</h2>
+                <p>Enter patient information to predict medical expenses</p>
+            </div>
+
+            <form action="/predictdata" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" placeholder="Enter age (18-100)" required min="18" max="100" value="{{ age if age else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <select id="sex" name="sex" required>
+                            <option value="">Select gender</option>
+                            <option value="male" {% if sex == 'male' %}selected{% endif %}>Male</option>
+                            <option value="female" {% if sex == 'female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bmi">BMI (Body Mass Index)</label>
+                        <input type="number" id="bmi" name="bmi" placeholder="Enter BMI (e.g., 27.5)" required step="0.1" min="10" max="60" value="{{ bmi if bmi else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="children">Number of Children</label>
+                        <input type="number" id="children" name="children" placeholder="Enter number (0-10)" required min="0" max="10" value="{{ children if children else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="smoker">Smoker Status</label>
+                        <select id="smoker" name="smoker" required>
+                            <option value="">Select status</option>
+                            <option value="yes" {% if smoker == 'yes' %}selected{% endif %}>Yes</option>
+                            <option value="no" {% if smoker == 'no' %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region">Region</label>
+                        <select id="region" name="region" required>
+                            <option value="">Select region</option>
+                            <option value="southeast" {% if region == 'southeast' %}selected{% endif %}>Southeast</option>
+                            <option value="southwest" {% if region == 'southwest' %}selected{% endif %}>Southwest</option>
+                            <option value="northeast" {% if region == 'northeast' %}selected{% endif %}>Northeast</option>
+                            <option value="northwest" {% if region == 'northwest' %}selected{% endif %}>Northwest</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-predict">🔮 Predict Healthcare Cost</button>
+            </form>
+
+            {% if results %}
+            <div class="result-card">
+                <h3>₹ Predicted Healthcare Cost</h3>
+                <div class="result-value">₹{{ "%.2f"|format(results) }}</div>
+                <p class="result-subtitle">Estimated annual medical expenses</p>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="error-message">
+                <strong>⚠️ Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card-icon">🎯</div>
+                <h4>Accurate Predictions</h4>
+                <p>AI model trained on thousands of healthcare records</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-icon">⚡</div>
+                <h4>Instant Results</h4>
+                <p>Get predictions in seconds with optimized pipeline</p>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-icon">🔒</div>
+                <h4>Secure & Private</h4>
+                <p>Data processed securely and never stored</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
